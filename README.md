@@ -1,7 +1,6 @@
 # realm pkg
 
-
-This package contains MongoDB Stitch (soon to be renamed to Realm) authentication and GraphQL Client
+This Golang package contains MongoDB Stitch (soon to be renamed to Realm) Authentication and a GraphQL Client.
 
 
 See examples/
@@ -13,3 +12,4 @@ TODO
 -- Finish Sample Data example
 -- Test refresh token
 -- Test other auth mechanisms, so far only test anonymous login.
+-- Add _test files
