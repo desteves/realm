@@ -6,10 +6,10 @@ This Golang package contains MongoDB Stitch (soon to be renamed to Realm) Authen
 See examples/
 
 
+## TODO (work in progress)
 
-TODO
--- Add stitch config steps
--- Finish Sample Data example
--- Test refresh token
--- Test other auth mechanisms, so far only test anonymous login.
--- Add _test files
+- Add stitch config steps
+- Finish Sample Data example
+- Test refresh token
+- Test other auth mechanisms, so far only test anonymous login.
+- Add _test files
