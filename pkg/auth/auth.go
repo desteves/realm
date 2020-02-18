@@ -12,7 +12,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// Client holds a http real client
+// Client holds a http realm client
 type Client struct {
 	HttpClient *http.Client
 	options    *options.ClientOptions
@@ -74,6 +74,7 @@ func (c *Client) Connect() error {
 func (c *Client) Disconnect() error {
 
 	// TODO
+	// c.HttpClient.
 	return fmt.Errorf("not yet implemented")
 }
 

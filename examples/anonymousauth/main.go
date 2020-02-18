@@ -20,7 +20,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("%+v", err)
 	}
-	fmt.Printf("Got new client!\n")
+	fmt.Printf("Got new realm client!\n")
 
 	err = client.Connect()
 	if err != nil {
@@ -28,15 +28,16 @@ func main() {
 	}
 	fmt.Printf("Client connected to Realm!\n")
 
+	// this requires a very opinionated webhook configuration ;)
 	err = client.Ping()
 	if err != nil {
 		log.Fatalf("%+v", err)
 	}
 	fmt.Printf("Passed webhook ping test!\n")
 
-	err = client.Disconnect()
-	if err != nil {
-		log.Fatalf("%+v", err)
-	}
+	// err = client.Disconnect()
+	// if err != nil {
+	// 	log.Fatalf("%+v", err)
+	// }
 	fmt.Printf("The End.\n")
 }

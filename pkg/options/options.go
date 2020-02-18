@@ -1,3 +1,4 @@
+// Package options contains shared properties/helpers to be consumed by other packages
 package options
 
 import "fmt"
