@@ -6,16 +6,18 @@ See [examples/](examples/)
 
 ## Usage 
 
-`go get https://github.com/desteves/realm`
-`import  "github.com/desteves/realm/pkg/graphql"`
+```bash
+go get https://github.com/desteves/realm
+import  "github.com/desteves/realm/pkg/graphql"
+```
 
 
 ## TODO (work in progress)
 
 - Test Refresh Token with oauth package
 - Test all auth mechanisms, so far only test anonymous login.
-- Add `*_test` files/packages
-- Implement `Disconnect` for auth and graphql packages.
+- Add `*_test` everywhere
+- Implement `Disconnect` for auth packages.
 
 
 ## Atlas and Stitch Set up
