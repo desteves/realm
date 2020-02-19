@@ -11,6 +11,8 @@ import (
 	"github.com/desteves/realm/pkg/options"
 )
 
+type jsondict map[string]interface{}
+
 func main() {
 
 	appid := "graphqlserver-lrnqt" // please don't ddos my poor little app, leaving it open so y'all can test etc.
@@ -38,7 +40,7 @@ func main() {
 	}
 	fmt.Printf("Passed healthcheck test!\n")
 
-	// runSampleQueries(client)
+	runSampleQueries(client)
 	runSampleMutations(client)
 
 	fmt.Printf("The End.\n")
@@ -51,6 +53,7 @@ func runQuery(client *g.Client, namespace string, query interface{}, variables m
 	fmt.Printf("\n%v Query ", namespace)
 	err := client.Query(context.TODO(), query, variables, &response)
 	if err != nil {
+		fmt.Printf("! err %+v \n", err.Error())
 		return
 	}
 	fmt.Printf("Response %+v \n", response)
@@ -111,22 +114,6 @@ func runSampleQueries(client *g.Client) {
 
 }
 
-//
-// mutation ($customer: CustomerInsertInput!) {
-// 	insertOneCustomer(data: $customer) {
-// 		_id
-// 	}
-// }
-// {
-//   "customer": {
-//     "active": false,
-//     "address": "1212 guadalupe st",
-//     "email": "diana@mongodb.com",
-//     "name": "diana",
-//     "username": "d"
-//   }
-// }
-
 func runSampleMutations(client *g.Client) {
 
 	// insertOne<collection> and return _id
@@ -154,50 +141,154 @@ func runSampleMutations(client *g.Client) {
 	}`
 
 	vTwo := g.Variable{
-		"customers": []map[string]interface{}{
-			map[string]interface{}{
+		"customers": []jsondict{
+			jsondict{
 				"active":   false,
-				"address":  "1212 guadalupe st",
-				"email":    "diana@mongodb.com",
+				"address":  "123 4th st apt 5",
 				"name":     "diana",
 				"username": "d",
 			},
-			map[string]interface{}{
+			jsondict{
 				"active":   false,
 				"address":  "33 sheridan st",
-				"name":     "diana",
-				"username": "d",
+				"name":     "griffin",
+				"username": "the_cat",
 			},
 		},
 	}
 	runMutation(client, "sample_analytics.customers", mTwo, vTwo)
 
-	// deleteMany<collection>s and return _id
-	mThree := ``
-	vThree := g.Variable{}
+	// deleteMany<collection>s and return _id's
+	mThree := `mutation ($query: TransactionQueryInput) {
+		deleteManyTransactions(query: $query) {
+			deletedCount
+		}
+	}`
+	vThree := g.Variable{
+		"query": jsondict{
+			"account_id": 278603, //  996263, 443178, 716662, 996263
+		},
+	}
 	runMutation(client, "sample_analytics.transactions", mThree, vThree)
+
 	// deleteOne<collection>  and return _id
-	mFour := ``
-	vFour := g.Variable{}
-	runMutation(client, "sample_analytics.customers", mFour, vFour)
+	mFour := `mutation ($query: TransactionQueryInput!) {
+		deleteOneTransaction(query: $query) {
+			_id
+		}
+	}`
+	vFour := g.Variable{
+		"query": jsondict{
+			"transaction_count": 40,
+		},
+	}
+	runMutation(client, "sample_training.tweets", mFour, vFour)
 
 	// replaceOne<collection> and return _id
-	mFive := ``
-	vFive := g.Variable{}
-	runMutation(client, "sample_analytics.customers", mFive, vFive)
+	mFive := `mutation ($query: MovieQueryInput, $data: MovieInsertInput!) {
+		replaceOneMovie(query: $query, data: $data) {
+			_id
+		}
+	}`
+	vFive := g.Variable{
+		"query": jsondict{
+			"year": 1940,
+		},
+		"data": jsondict{
+			"tomatoes": jsondict{
+				"consensus": "",
+				"website":   "stitch.mongodb.com",
+			},
+			"year":  2020,
+			"type":  "horror",
+			"title": "learning graphql",
+		},
+	}
+	runMutation(client, "sample_mflix.movies", mFive, vFive)
 
-	// updateMany<collection>s and return _id
-	mSix := ``
-	vSix := g.Variable{}
-	runMutation(client, "sample_analytics.customers", mSix, vSix)
+	// updateMany<collection>s and return matched & modified count
+	mSix := `mutation ($query: CommentQueryInput, $set: CommentUpdateInput!) {
+		updateManyComments(query: $query, set: $set) {
+			matchedCount
+			modifiedCount
+		}
+	}`
+	vSix := g.Variable{
+		"query": jsondict{
+			"name": "Jon Snow",
+		},
+		"set": jsondict{
+			"name": "Aegon Targaryen",
+		},
+	}
+	runMutation(client, "sample_mflix.comments", mSix, vSix)
+
 	// updateOne<collection> and return _id
-	mSeven := ``
-	vSeven := g.Variable{}
-	runMutation(client, "sample_analytics.customers", mSeven, vSeven)
+	mSeven := `mutation ($query: UserQueryInput, $set: UserUpdateInput!) {
+		updateOneUser(query: $query, set: $set) {
+			_id
+			name
+			email
+		}
+	}`
+	vSeven := g.Variable{
+		"query": jsondict{
+			"name": "Jon Snow",
+		},
+		"set": jsondict{
+			"name": "Aegon Targaryen",
+		},
+	}
+
+	runMutation(client, "sample_mflix.users", mSeven, vSeven)
 
 	// upsertOne<collection> and return _id
-	mEight := ``
-	vEight := g.Variable{}
-	runMutation(client, "sample_analytics.customers", mEight, vEight)
+	mEight := `mutation ($q: TheaterQueryInput, $d: TheaterInsertInput!) {
+		upsertOneTheater(query: $q, data: $d) {
+			_id
+			location {
+				address {
+					city
+					state
+					zipcode
+					street1
+					street2
+				}
+			}
+		}
+	}`
+	vEight := g.Variable{
+		"q": jsondict{
+			"theaterId": 99999,
+		},
+		"d": jsondict{
+			"location": jsondict{
+				"address": jsondict{
+					"zipcode": "78701",
+					"city":    "Austin",
+					"state":   "TX",
+					"street1": "1800 Congress Ave",
+				},
+			},
+		},
+	}
+	runMutation(client, "sample_supplies.sales", mEight, vEight)
 
 }
+
+// GraphiQL syntax for mutations
+//
+// mutation ($customer: CustomerInsertInput!) {
+// 	insertOneCustomer(data: $customer) {
+// 		_id
+// 	}
+// }
+// {
+//   "customer": {
+//     "active": false,
+//     "address": "1212 guadalupe st",
+//     "email": "diana@mongodb.com",
+//     "name": "diana",
+//     "username": "d"
+//   }
+// }
