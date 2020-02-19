@@ -38,29 +38,41 @@ func main() {
 	}
 	fmt.Printf("Passed healthcheck test!\n")
 
-	runSampleQueries(client)
+	// runSampleQueries(client)
 	runSampleMutations(client)
 
 	fmt.Printf("The End.\n")
 
 }
 
-func runQuery(client *g.Client, namespace string, query interface{}, variables interface{}) {
+func runQuery(client *g.Client, namespace string, query interface{}, variables map[string]interface{}) {
 
 	var response g.Response
-	fmt.Printf("\n%v Query", namespace)
-	err := client.Query(context.TODO(), query, nil, &response)
+	fmt.Printf("\n%v Query ", namespace)
+	err := client.Query(context.TODO(), query, variables, &response)
 	if err != nil {
 		return
 	}
-	fmt.Printf("Response %+v\n", response)
+	fmt.Printf("Response %+v \n", response)
+}
+
+func runMutation(client *g.Client, namespace string, mutation string, variables map[string]interface{}) {
+
+	var response g.Response
+	fmt.Printf("\n%v Mutation ", namespace)
+	err := client.Mutate(context.TODO(), mutation, variables, &response)
+	if err != nil {
+		fmt.Printf("! err %+v \n", err.Error())
+		return
+	}
+	fmt.Printf("Response %+v \n", response)
 }
 
 func runSampleQueries(client *g.Client) {
 
 	// findOne
 	var qOne struct {
-		AirBnBListingAndReviews struct {
+		AirBnBListingAndReview struct {
 			ID   string `graphql:"_id"`
 			Name string `graphql:"name"`
 			URI  string `graphql:"listing_url"`
@@ -70,67 +82,112 @@ func runSampleQueries(client *g.Client) {
 
 	// findOne with filter
 	var qTwo struct {
-		AirBnBListingAndReviews struct {
+		AirBnBListingAndReview struct {
 			ID   string `graphql:"_id"`
 			Name string `graphql:"name"`
 			URI  string `graphql:"listing_url"`
-		} `graphql:"listingsAndReviews( name: 5 )"`
+		} `graphql:"listingsAndReviews( query: { _id: \"10009999\" } )"`
 	}
 	runQuery(client, "sample_airbnb.listingsAndReviews", qTwo, nil)
 
-	// find with limit
+	// find many with limit
 	var qThree struct {
-		AirBnBListingAndReviewss []struct { // don't forget slice, else error: "slice doesn't exist in any of 1 places to unmarshal"
+		AirBnBListingAndReviews []struct { // don't forget slice, else error: "slice doesn't exist in any of 1 places to unmarshal"
 			ID   string `graphql:"_id"`
 			Name string `graphql:"name"`
 			URI  string `graphql:"listing_url"`
-		} `graphql:"listingsAndReviewss( limit: 5 )"`
+		} `graphql:"listingsAndReviewss( limit: 3 )"`
 	}
 	runQuery(client, "sample_airbnb.listingsAndReviews", qThree, nil)
 
-	// filter
+	// find many with sort
 	var qFour struct {
-		Accounts struct {
+		Accounts []struct {
 			ID        string `graphql:"_id"`
 			AccountID string `graphql:"account_id"`
-			Limit     string `graphql:"limit"`
-		} `graphql:"accounts(query: {limit: 10000}) "`
+		} `graphql:"accountss(sortBy: ACCOUNT_ID_ASC, limit: 5)"`
 	}
 	runQuery(client, "sample_analytics.accounts", qFour, nil)
 
 }
 
 func runSampleMutations(client *g.Client) {
-}
 
-// 	//////////////////////////////////////////////////////////////////////////////////
-// 	// Mutate Sample Data from various Databases showcasing a number of filters
-// 	//////////////////////////////////////////////////////////////////////////////////
-// 	fmt.Printf("Insert a Single Document from sample_analytics.customers\n")
-// 	var m struct {
-// 		InsertOneCustomer struct {
-// 			active   graphql.Boolean
-// 			address  graphql.String
-// 			email    graphql.String
-// 			name     graphql.String
-// 			username graphql.String
-// 		} `graphql:"insertOneCustomer(data: {
-// 			title: "Little Women"
-// 			director: "Greta Gerwig"
-// 			year: 2019
-// 			runtime: 135
-// 		})"`
-// 	}
-// 	variables := map[string]interface{}{
-// 		"ep": starwars.Episode("JEDI"),
-// 		"review": starwars.ReviewInput{
-// 			Stars:      graphql.Int(5),
-// 			Commentary: graphql.String("This is a great movie!"),
-// 		},
-// 	}
-// 	err := client.Mutate(context.Background(), &m, variables)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Printf("Created a %v star review: %v \n\n\n", m.CreateReview.Stars, m.CreateReview.Commentary)
-// }
+	// insertOne<collection> and return _id
+	mOne := `mutation ($customer: CustomerInsertInput!) {
+		insertOneCustomer(data: $customer) {
+			_id
+		}	}`
+
+	vOne := g.Variable{
+		"customer": g.Variable{
+			"active":   false,
+			"address":  "1212 guadalupe st",
+			"email":    "diana@mongodb.com",
+			"name":     "diana",
+			"username": "d",
+		},
+	}
+	runMutation(client, "sample_analytics.customers", mOne, vOne)
+	//
+	// mutation ($customer: CustomerInsertInput!) {
+	// 	insertOneCustomer(data: $customer) {
+	// 		_id
+	// 	}
+	// }
+	// {
+	//   "customer": {
+	//     "active": false,
+	//     "address": "1212 guadalupe st",
+	//     "email": "diana@mongodb.com",
+	//     "name": "diana",
+	//     "username": "d"
+	//   }
+	// }
+
+	// insertMany<collection>s and return _id's
+	mTwo := `mutation ($customer: CustomerInsertInput!) {
+		insertOneCustomer(data: $customer) {
+			_id
+		}	}`
+
+	vTwo := g.Variable{
+		"customer": g.Variable{
+			"active":   false,
+			"address":  "1212 guadalupe st",
+			"email":    "diana@mongodb.com",
+			"name":     "diana",
+			"username": "d",
+		},
+	}
+	runMutation(client, "sample_analytics.customers", mTwo, vTwo)
+
+	// deleteMany<collection>s and return _id
+	mThree := ``
+	vThree := g.Variable{}
+	runMutation(client, "sample_analytics.customers", mThree, vThree)
+	// deleteOne<collection>  and return _id
+	mFour := ``
+	vFour := g.Variable{}
+	runMutation(client, "sample_analytics.customers", mFour, vFour)
+
+	// replaceOne<collection> and return _id
+	mFive := ``
+	vFive := g.Variable{}
+	runMutation(client, "sample_analytics.customers", mFive, vFive)
+
+	// updateMany<collection>s and return _id
+	mSix := ``
+	vSix := g.Variable{}
+	runMutation(client, "sample_analytics.customers", mSix, vSix)
+	// updateOne<collection> and return _id
+	mSeven := ``
+	vSeven := g.Variable{}
+	runMutation(client, "sample_analytics.customers", mSeven, vSeven)
+
+	// upsertOne<collection> and return _id
+	mEight := ``
+	vEight := g.Variable{}
+	runMutation(client, "sample_analytics.customers", mEight, vEight)
+
+}

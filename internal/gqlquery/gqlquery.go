@@ -25,13 +25,13 @@ func ConstructQuery(v interface{}, variables map[string]interface{}) string {
 	return query
 }
 
-func ConstructMutation(v interface{}, variables map[string]interface{}) string {
-	query := query(v)
-	if len(variables) > 0 {
-		return "mutation(" + queryArguments(variables) + ")" + query
-	}
-	return "mutation" + query
-}
+// func ConstructMutation(v interface{}, variables map[string]interface{}) string {
+// 	query := query(v)
+// 	if len(variables) > 0 {
+// 		return "mutation(" + queryArguments(variables) + ")" + query
+// 	}
+// 	return "mutation" + query
+// }
 
 // queryArguments constructs a minified arguments string for variables.
 //

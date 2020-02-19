@@ -16,7 +16,6 @@ See [examples/](examples/)
 - Add stitch config steps
   - creating webhook for ping test
   - creating dummy graphql record for testing
-- Finish Sample Data example
 - Test Refresh Token
 - Test all auth mechanisms, so far only test anonymous login.
 - Add `*_test` files/packages

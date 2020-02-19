@@ -13,7 +13,6 @@ import (
 	"github.com/desteves/realm/pkg/options"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context/ctxhttp"
-	// gql "github.com/shurcooL/graphql"
 )
 
 //HealthCheck Query for Realm Config Verification
@@ -51,24 +50,19 @@ type Error struct {
 	Extensions map[string]interface{} `json:"extensions,omitempty"`
 }
 
+type Variable map[string]interface{}
+
+// Request is the payload for GraphQL
+type Request struct {
+	Query         string   `json:"query" graphql:"query"`
+	Variables     Variable `json:"variables" graphql:"variables"`
+	OperationName *string  `json:"operationName" graphql:"operationName"`
+}
+
 // Response is the payload for a GraphQL response.
 type Response struct {
 	Data   interface{} `json:"data,omitempty" graphql:"data,omitempty"`
 	Errors []Error     `json:"errors,omitempty"`
-}
-
-// QueryRequest is the payload for GraphQL queries
-type QueryRequest struct {
-	Query         string                 `json:"query" graphql:"query"`
-	Variables     map[string]interface{} `json:"variables" graphql:"variables"`
-	OperationName *string                `json:"operationName" graphql:"operationName"`
-}
-
-// MutationRequest  is the payload for GraphQL mutations
-type MutationRequest struct {
-	Mutation      string                 `json:"mutation" graphql:"mutation"`
-	Variables     map[string]interface{} `json:"variables" graphql:"variables"`
-	OperationName *string                `json:"operationName" graphql:"operationName"`
 }
 
 // Client is a Realm GraphQL Client with authentication to a Realm Application
@@ -132,7 +126,7 @@ func (c *Client) Disconnect() error {
 
 // Query wrapper
 func (c *Client) Query(ctx context.Context, query interface{}, variables map[string]interface{}, response *Response) error {
-	payload := QueryRequest{
+	payload := Request{
 		Query:     gqlquery.ConstructQuery(query, variables),
 		Variables: variables,
 	}
@@ -146,11 +140,12 @@ func (c *Client) Query(ctx context.Context, query interface{}, variables map[str
 }
 
 // Mutate wrapper
-func (c *Client) Mutate(ctx context.Context, mutation interface{}, variables map[string]interface{}, response *Response) error {
-	payload := MutationRequest{
-		Mutation:  gqlquery.ConstructMutation(mutation, variables),
+func (c *Client) Mutate(ctx context.Context, mutation string, variables map[string]interface{}, response *Response) error {
+	payload := Request{
+		Query:     mutation,
 		Variables: variables,
 	}
+	// fmt.Printf("\n Payload is :\n %+v \n", payload)
 	err := c.do(ctx, payload, response)
 	if err != nil {
 		return errors.Wrap(err, "m do")
@@ -161,17 +156,7 @@ func (c *Client) Mutate(ctx context.Context, mutation interface{}, variables map
 
 // do executes a single GraphQL operation.
 func (c *Client) do(ctx context.Context, payload interface{}, response *Response) error {
-	// response interface{})
-	// responseBody, err := ioutil.ReadAll(rawResponse.Body)
-	// if err != nil {
-	// 	return errors.Wrap(err, "raw read")
-	// }
-	// // decode it into map string first, let mapstructure do the final decode
-	// // mapstructure is way stricter about unknown fields, can handle embedded structs and more
-	// err = json.Unmarshal(responseBody, response)
-	// if err != nil {
-	// 	return errors.Wrap(err, "raw decode")
-	// }
+
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(payload)
 	if err != nil {
@@ -187,10 +172,5 @@ func (c *Client) do(ctx context.Context, payload interface{}, response *Response
 		return fmt.Errorf("non-200 OK status code: %v body: %q", resp.Status, body)
 	}
 
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return json.NewDecoder(resp.Body).Decode(&response)
 }
