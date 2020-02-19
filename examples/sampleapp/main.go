@@ -125,8 +125,7 @@ func runSampleMutations(client *g.Client) {
 	vOne := g.Variable{
 		"customer": g.Variable{
 			"active":   false,
-			"address":  "1212 guadalupe st",
-			"email":    "diana@mongodb.com",
+			"address":  "123 4th st apt 5",
 			"name":     "diana",
 			"username": "d",
 		},
@@ -286,8 +285,7 @@ func runSampleMutations(client *g.Client) {
 // {
 //   "customer": {
 //     "active": false,
-//     "address": "1212 guadalupe st",
-//     "email": "diana@mongodb.com",
+//     "address": "123 4th st apt 5",
 //     "name": "diana",
 //     "username": "d"
 //   }
