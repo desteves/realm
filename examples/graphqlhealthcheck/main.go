@@ -30,11 +30,12 @@ func main() {
 	fmt.Printf("GraphQL client connected!\n")
 
 	// this requires a very opinionated graphql configuration ;)
-	q, err := client.Health()
+	var r g.Response
+	err = client.Health(&r)
 	if err != nil {
 		log.Fatalf("%+v", err)
 	}
-	fmt.Printf("Passed healthcheck test, got %+v \n", q)
+	fmt.Printf("Passed healthcheck test, got %+v \n", r)
 
 	// err = client.Disconnect()
 	// if err != nil {
