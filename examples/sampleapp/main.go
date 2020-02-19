@@ -111,6 +111,22 @@ func runSampleQueries(client *g.Client) {
 
 }
 
+//
+// mutation ($customer: CustomerInsertInput!) {
+// 	insertOneCustomer(data: $customer) {
+// 		_id
+// 	}
+// }
+// {
+//   "customer": {
+//     "active": false,
+//     "address": "1212 guadalupe st",
+//     "email": "diana@mongodb.com",
+//     "name": "diana",
+//     "username": "d"
+//   }
+// }
+
 func runSampleMutations(client *g.Client) {
 
 	// insertOne<collection> and return _id
@@ -129,35 +145,29 @@ func runSampleMutations(client *g.Client) {
 		},
 	}
 	runMutation(client, "sample_analytics.customers", mOne, vOne)
-	//
-	// mutation ($customer: CustomerInsertInput!) {
-	// 	insertOneCustomer(data: $customer) {
-	// 		_id
-	// 	}
-	// }
-	// {
-	//   "customer": {
-	//     "active": false,
-	//     "address": "1212 guadalupe st",
-	//     "email": "diana@mongodb.com",
-	//     "name": "diana",
-	//     "username": "d"
-	//   }
-	// }
 
 	// insertMany<collection>s and return _id's
-	mTwo := `mutation ($customer: CustomerInsertInput!) {
-		insertOneCustomer(data: $customer) {
-			_id
-		}	}`
+	mTwo := `mutation ($customers: [CustomerInsertInput!]!) {
+		insertManyCustomers(data: $customers) {
+			insertedIds
+		}
+	}`
 
 	vTwo := g.Variable{
-		"customer": g.Variable{
-			"active":   false,
-			"address":  "1212 guadalupe st",
-			"email":    "diana@mongodb.com",
-			"name":     "diana",
-			"username": "d",
+		"customers": []map[string]interface{}{
+			map[string]interface{}{
+				"active":   false,
+				"address":  "1212 guadalupe st",
+				"email":    "diana@mongodb.com",
+				"name":     "diana",
+				"username": "d",
+			},
+			map[string]interface{}{
+				"active":   false,
+				"address":  "33 sheridan st",
+				"name":     "diana",
+				"username": "d",
+			},
 		},
 	}
 	runMutation(client, "sample_analytics.customers", mTwo, vTwo)
@@ -165,7 +175,7 @@ func runSampleMutations(client *g.Client) {
 	// deleteMany<collection>s and return _id
 	mThree := ``
 	vThree := g.Variable{}
-	runMutation(client, "sample_analytics.customers", mThree, vThree)
+	runMutation(client, "sample_analytics.transactions", mThree, vThree)
 	// deleteOne<collection>  and return _id
 	mFour := ``
 	vFour := g.Variable{}
