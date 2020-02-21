@@ -18,6 +18,7 @@ import  "github.com/desteves/realm/pkg/graphql"
 - Test all auth mechanisms, so far only test anonymous login.
 - Add `*_test` everywhere
 - Implement `Disconnect` for auth packages.
+- Don't show errors array when no error.
 
 
 ## Atlas and Stitch Set up

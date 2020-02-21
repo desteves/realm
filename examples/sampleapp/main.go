@@ -47,28 +47,28 @@ func main() {
 
 }
 
-func runQuery(client *g.Client, namespace string, query interface{}, variables map[string]interface{}) {
+func runQuery(client *g.Client, about string, query interface{}, variables map[string]interface{}) {
 
 	var response g.Response
-	fmt.Printf("\n%v Query ", namespace)
+	fmt.Printf("\n%v", about)
 	err := client.Query(context.TODO(), query, variables, &response)
 	if err != nil {
 		fmt.Printf("! err %+v \n", err.Error())
 		return
 	}
-	fmt.Printf("Response %+v \n", response)
+	fmt.Printf("%+v \n", response)
 }
 
-func runMutation(client *g.Client, namespace string, mutation string, variables map[string]interface{}) {
+func runMutation(client *g.Client, about string, mutation string, variables map[string]interface{}) {
 
 	var response g.Response
-	fmt.Printf("\n%v Mutation ", namespace)
+	fmt.Printf("\n%v", about)
 	err := client.Mutate(context.TODO(), mutation, variables, &response)
 	if err != nil {
 		fmt.Printf("! err %+v \n", err.Error())
 		return
 	}
-	fmt.Printf("Response %+v \n", response)
+	fmt.Printf("%+v \n", response.Data)
 }
 
 func runSampleQueries(client *g.Client) {
@@ -81,7 +81,7 @@ func runSampleQueries(client *g.Client) {
 			URI  string `graphql:"listing_url"`
 		} `graphql:"listingsAndReviews"`
 	}
-	runQuery(client, "sample_airbnb.listingsAndReviews", qOne, nil)
+	runQuery(client, "(01) Query Resolver findOne AirBnB Review\n", qOne, nil)
 
 	// findOne with filter
 	var qTwo struct {
@@ -91,7 +91,7 @@ func runSampleQueries(client *g.Client) {
 			URI  string `graphql:"listing_url"`
 		} `graphql:"listingsAndReviews( query: { _id: \"10009999\" } )"`
 	}
-	runQuery(client, "sample_airbnb.listingsAndReviews", qTwo, nil)
+	runQuery(client, "(02) Query Resolver with filter on AirBnB reviews\n", qTwo, nil)
 
 	// find many with limit
 	var qThree struct {
@@ -101,7 +101,7 @@ func runSampleQueries(client *g.Client) {
 			URI  string `graphql:"listing_url"`
 		} `graphql:"listingsAndReviewss( limit: 3 )"`
 	}
-	runQuery(client, "sample_airbnb.listingsAndReviews", qThree, nil)
+	runQuery(client, "(03) Query Resolver with limit on AirBnB Reviews\n", qThree, nil)
 
 	// find many with sort
 	var qFour struct {
@@ -110,7 +110,7 @@ func runSampleQueries(client *g.Client) {
 			AccountID string `graphql:"account_id"`
 		} `graphql:"accountss(sortBy: ACCOUNT_ID_ASC, limit: 5)"`
 	}
-	runQuery(client, "sample_analytics.accounts", qFour, nil)
+	runQuery(client, "(04) Query Resolver with sort and limit on Accounts\n", qFour, nil)
 
 }
 
@@ -130,7 +130,7 @@ func runSampleMutations(client *g.Client) {
 			"username": "d",
 		},
 	}
-	runMutation(client, "sample_analytics.customers", mOne, vOne)
+	runMutation(client, "(05) Mutation Resolver -   ", mOne, vOne)
 
 	// insertMany<collection>s and return _id's
 	mTwo := `mutation ($customers: [CustomerInsertInput!]!) {
@@ -155,7 +155,7 @@ func runSampleMutations(client *g.Client) {
 			},
 		},
 	}
-	runMutation(client, "sample_analytics.customers", mTwo, vTwo)
+	runMutation(client, "(06) Mutation Resolver -   ", mTwo, vTwo)
 
 	// deleteMany<collection>s and return _id's
 	mThree := `mutation ($query: TransactionQueryInput) {
@@ -165,10 +165,10 @@ func runSampleMutations(client *g.Client) {
 	}`
 	vThree := g.Variable{
 		"query": jsondict{
-			"account_id": 278603, //  996263, 443178, 716662, 996263
+			"account_id": 627788, // 443178, 716662, 996263
 		},
 	}
-	runMutation(client, "sample_analytics.transactions", mThree, vThree)
+	runMutation(client, "(07) Mutation Resolver -   ", mThree, vThree)
 
 	// deleteOne<collection>  and return _id
 	mFour := `mutation ($query: TransactionQueryInput!) {
@@ -178,10 +178,10 @@ func runSampleMutations(client *g.Client) {
 	}`
 	vFour := g.Variable{
 		"query": jsondict{
-			"transaction_count": 40,
+			"transaction_count": 10,
 		},
 	}
-	runMutation(client, "sample_training.tweets", mFour, vFour)
+	runMutation(client, "(08) Mutation Resolver -   ", mFour, vFour)
 
 	// replaceOne<collection> and return _id
 	mFive := `mutation ($query: MovieQueryInput, $data: MovieInsertInput!) {
@@ -203,7 +203,7 @@ func runSampleMutations(client *g.Client) {
 			"title": "learning graphql",
 		},
 	}
-	runMutation(client, "sample_mflix.movies", mFive, vFive)
+	runMutation(client, "(09) Mutation Resolver -   ", mFive, vFive)
 
 	// updateMany<collection>s and return matched & modified count
 	mSix := `mutation ($query: CommentQueryInput, $set: CommentUpdateInput!) {
@@ -212,6 +212,14 @@ func runSampleMutations(client *g.Client) {
 			modifiedCount
 		}
 	}`
+	// vSix := g.Variable{
+	// 	"query": jsondict{
+	// 		"name": "Aegon Targaryen",
+	// 	},
+	// 	"set": jsondict{
+	// 		"name": "Jon Snow",
+	// 	},
+	// }
 	vSix := g.Variable{
 		"query": jsondict{
 			"name": "Jon Snow",
@@ -220,7 +228,7 @@ func runSampleMutations(client *g.Client) {
 			"name": "Aegon Targaryen",
 		},
 	}
-	runMutation(client, "sample_mflix.comments", mSix, vSix)
+	runMutation(client, "(10) Mutation Resolver -   ", mSix, vSix)
 
 	// updateOne<collection> and return _id
 	mSeven := `mutation ($query: UserQueryInput, $set: UserUpdateInput!) {
@@ -230,6 +238,14 @@ func runSampleMutations(client *g.Client) {
 			email
 		}
 	}`
+	// vSeven := g.Variable{
+	// 	"query": jsondict{
+	// 		"name": "Aegon Targaryen",
+	// 	},
+	// 	"set": jsondict{
+	// 		"name": "Jon Snow",
+	// 	},
+	// }
 	vSeven := g.Variable{
 		"query": jsondict{
 			"name": "Jon Snow",
@@ -239,7 +255,7 @@ func runSampleMutations(client *g.Client) {
 		},
 	}
 
-	runMutation(client, "sample_mflix.users", mSeven, vSeven)
+	runMutation(client, "(11) Mutation Resolver -   ", mSeven, vSeven)
 
 	// upsertOne<collection> and return _id
 	mEight := `mutation ($q: TheaterQueryInput, $d: TheaterInsertInput!) {
@@ -271,7 +287,7 @@ func runSampleMutations(client *g.Client) {
 			},
 		},
 	}
-	runMutation(client, "sample_supplies.sales", mEight, vEight)
+	runMutation(client, "(12) Mutation Resolver -   ", mEight, vEight)
 
 }
 
