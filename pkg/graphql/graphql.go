@@ -1,3 +1,4 @@
+// Package graphql contains a graphql client which talks to a MongoDB Realm GraphQL Server
 package graphql
 
 import (
@@ -50,6 +51,7 @@ type Error struct {
 	Extensions map[string]interface{} `json:"extensions,omitempty"`
 }
 
+// Variable is a GraphQL Variable passed in the Body of a GraphQL Request.
 type Variable map[string]interface{}
 
 // Request is the payload for GraphQL
