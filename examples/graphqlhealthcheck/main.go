@@ -1,4 +1,4 @@
-// Package main a simple graphql instance.
+// Package main contains an exmaple testing for the Realm GraphQL Server healthcheck.
 package main
 
 import (

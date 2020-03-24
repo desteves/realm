@@ -1,3 +1,6 @@
+// Package auth handles the Realm GraphQL Server authentication.
+// This consists of providing valid credentials to obtain a token.
+// The token is refreshed every 30 minutes.
 package auth
 
 import (
@@ -8,7 +11,6 @@ import (
 	"net/http"
 
 	"github.com/desteves/realm/pkg/options"
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
@@ -71,12 +73,12 @@ func (c *Client) Connect() error {
 	return nil
 }
 
-func (c *Client) Disconnect() error {
+// func (c *Client) Disconnect() error {
 
-	// TODO
-	// c.HttpClient.
-	return fmt.Errorf("not yet implemented")
-}
+// 	// TODO
+// 	// c.HttpClient.
+// 	return fmt.Errorf("not yet implemented")
+// }
 
 // Because of non-standard body and headers we need to do a little "hack"
 // and request the first Token slightly different than how the
@@ -86,29 +88,29 @@ func (c *Client) retrieveFirstToken() error {
 
 	b, err := json.Marshal(c.options.Credential)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	body := bytes.NewReader(b)
 	req, err := http.NewRequest("POST", c.oauth.Endpoint.AuthURL, body)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("! bad response %+v", resp)
+		return fmt.Errorf("bad response %+v", resp)
 	}
 	b, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	err = json.Unmarshal(b, &c.Token)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	return nil
 }

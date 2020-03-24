@@ -1,4 +1,4 @@
-// Package main a simple graphql instance.
+// Package main contains an exmaple testing for a ping to Realm.
 package main
 
 import (

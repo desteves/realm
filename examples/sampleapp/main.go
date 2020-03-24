@@ -1,5 +1,4 @@
-// Uses standard "sample data" available to all Atlas clusters.
-// See https://docs.atlas.mongodb.com/sample-data/
+// Package main contains an example of a simple graphql instance. This uses standard "sample data" available to all Atlas clusters to perfrom queries and mutations from the auto-generated resolvers. See https://docs.atlas.mongodb.com/sample-data/
 package main
 
 import (

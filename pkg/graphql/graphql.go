@@ -119,10 +119,10 @@ func (c *Client) Connect() error {
 	return nil
 }
 
-// Disconnect disconnects user session
-func (c *Client) Disconnect() error {
-	return c.client.Disconnect()
-}
+// // Disconnect disconnects user session
+// func (c *Client) Disconnect() error {
+// 	return c.client.Disconnect()
+// }
 
 // Query wrapper
 func (c *Client) Query(ctx context.Context, query interface{}, variables map[string]interface{}, response *Response) error {
