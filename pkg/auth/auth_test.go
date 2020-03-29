@@ -54,6 +54,34 @@ var _ = Describe("Auth", func() {
 			// })
 		})
 	})
+	Describe("Ping", func() {
+		Context("with valid client options", func() {
+			var opts options.ClientOptions
+			BeforeEach(func() {
+				appid := "graphqlserver-lrnqt"
+				auth := "anon-user"
+				opts.AppID = &appid
+				opts.AuthMechanism = &auth
+			})
+
+			Context("and client connected", func() {
+				var nc *Client
+				var err error
+				BeforeEach(func() {
+					nc, err = NewClient(&opts)
+					Expect(err).ShouldNot(HaveOccurred())
+
+					err = nc.Connect()
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+				It("should return no error", func() {
+					err := nc.Ping()
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+			})
+
+		})
+	})
 	Describe("Connect", func() {
 		Context("with valid client options", func() {
 			var opts options.ClientOptions
@@ -72,12 +100,13 @@ var _ = Describe("Auth", func() {
 					Expect(err).ShouldNot(HaveOccurred())
 
 				})
-				FIt("should return a valid token", func() {
+				It("should return a valid token", func() {
 					nc, err := NewClient(&opts)
 					Expect(err).ShouldNot(HaveOccurred())
 
 					err = nc.Connect()
 					Expect(err).ShouldNot(HaveOccurred())
+
 					Expect(nc.Token.AccessToken).ShouldNot(BeEmpty())
 					Expect(nc.Token.RefreshToken).ShouldNot(BeEmpty())
 					Expect(nc.Token.Extra("user_id")).ShouldNot(BeNil())

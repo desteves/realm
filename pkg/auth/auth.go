@@ -53,7 +53,7 @@ func (c *Client) createEndpoint(appid, provider string) {
 
 // Ping assumes an http service named "ping" with an incoming_webhook calling a function named "test" which returns 200 has been created.
 func (c *Client) Ping() error {
-
+	// TODO - add checks for nil
 	uri := "https://webhooks.mongodb-stitch.com/api/client/v2.0/app/" + *c.options.AppID + "/service/ping/incoming_webhook/test"
 	resp, err := c.HTTPClient.Get(uri)
 	if err != nil {
