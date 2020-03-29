@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/desteves/realm/internal/gqlquery"
+	"github.com/desteves/realm/internal"
 	"github.com/desteves/realm/pkg/auth"
 	"github.com/desteves/realm/pkg/options"
 	"github.com/pkg/errors"
@@ -67,7 +67,7 @@ type Response struct {
 	Errors []Error     `json:"errors,omitempty"`
 }
 
-// Client is a Realm GraphQL Client with authentication to a Realm Application
+// Client is a Realm GraphQL Client with authentication to a Realm Application. The Realm GraphQL Server URI is stored in uri
 type Client struct {
 	client *auth.Client
 	uri    *string
@@ -117,19 +117,18 @@ func (c *Client) Connect() error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
-// // Disconnect disconnects user session
-// func (c *Client) Disconnect() error {
-// 	return c.client.Disconnect()
-// }
-
 // Query wrapper
 func (c *Client) Query(ctx context.Context, query interface{}, variables map[string]interface{}, response *Response) error {
+
+	if query == nil {
+		return fmt.Errorf("query parameter cannot be nil")
+	}
+
 	payload := Request{
-		Query:     gqlquery.ConstructQuery(query, variables),
+		Query:     internal.ConstructQuery(query, variables),
 		Variables: variables,
 	}
 
@@ -147,7 +146,6 @@ func (c *Client) Mutate(ctx context.Context, mutation string, variables map[stri
 		Query:     mutation,
 		Variables: variables,
 	}
-	// fmt.Printf("\n Payload is :\n %+v \n", payload)
 	err := c.do(ctx, payload, response)
 	if err != nil {
 		return errors.Wrap(err, "m do")
@@ -158,13 +156,15 @@ func (c *Client) Mutate(ctx context.Context, mutation string, variables map[stri
 
 // do executes a single GraphQL operation.
 func (c *Client) do(ctx context.Context, payload interface{}, response *Response) error {
-
+	if response == nil {
+		return fmt.Errorf("*Response parameter cannot be nil")
+	}
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(payload)
 	if err != nil {
 		return err
 	}
-	resp, err := ctxhttp.Post(ctx, c.client.HttpClient, *c.uri, "application/json", &buf)
+	resp, err := ctxhttp.Post(ctx, c.client.HTTPClient, *c.uri, "application/json", &buf)
 	if err != nil {
 		return err
 	}
@@ -173,6 +173,5 @@ func (c *Client) do(ctx context.Context, payload interface{}, response *Response
 		body, _ := ioutil.ReadAll(resp.Body)
 		return fmt.Errorf("non-200 OK status code: %v body: %q", resp.Status, body)
 	}
-
 	return json.NewDecoder(resp.Body).Decode(&response)
 }
