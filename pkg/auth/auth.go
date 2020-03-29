@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/desteves/realm/pkg/options"
 	"golang.org/x/oauth2"
@@ -16,13 +17,16 @@ import (
 
 // Client holds a http realm client
 type Client struct {
-	HttpClient *http.Client
-	options    *options.ClientOptions
-	oauth      *oauth2.Config
-	Token      *oauth2.Token // the application can use withExtra() to access device id or user_id
+	HTTPClient *http.Client
+	Token      *oauth2.Token // public so the application can use withExtra() to access device id or user_id
+
+	//private
+	options *options.ClientOptions
+	oauth   *oauth2.Config
 }
 
-// NewClient creates a new Client
+// NewClient creates a new Client with endpoints to Realm based on the provided
+// client options.
 func NewClient(opts *options.ClientOptions) (*Client, error) {
 	client := &Client{options: opts, oauth: &oauth2.Config{}, Token: &oauth2.Token{}}
 	err := client.configure(opts)
@@ -51,7 +55,7 @@ func (c *Client) createEndpoint(appid, provider string) {
 func (c *Client) Ping() error {
 
 	uri := "https://webhooks.mongodb-stitch.com/api/client/v2.0/app/" + *c.options.AppID + "/service/ping/incoming_webhook/test"
-	resp, err := c.HttpClient.Get(uri)
+	resp, err := c.HTTPClient.Get(uri)
 	if err != nil {
 		return err
 	}
@@ -63,20 +67,24 @@ func (c *Client) Ping() error {
 	return nil
 }
 
+// ConnectWithToken connect to realm with an existing token, either user-provided or internally obtained. Then token needs to be valid for the client to work.
+func (c *Client) ConnectWithToken(t *oauth2.Token) error {
+	c.HTTPClient = oauth2.NewClient(oauth2.NoContext, c.oauth.TokenSource(oauth2.NoContext, t))
+	return nil
+}
+
 // Connect connects to realm and establishes http client with auto refresh Token
 func (c *Client) Connect() error {
 	err := c.retrieveFirstToken()
 	if err != nil {
 		return err
 	}
-	c.HttpClient = oauth2.NewClient(oauth2.NoContext, c.oauth.TokenSource(oauth2.NoContext, c.Token))
-	return nil
+	return c.ConnectWithToken(c.Token)
 }
 
 // func (c *Client) Disconnect() error {
-
 // 	// TODO
-// 	// c.HttpClient.
+// 	// c.HTTPClient.
 // 	return fmt.Errorf("not yet implemented")
 // }
 
@@ -108,9 +116,28 @@ func (c *Client) retrieveFirstToken() error {
 	if err != nil {
 		return err
 	}
+
 	err = json.Unmarshal(b, &c.Token)
 	if err != nil {
 		return err
 	}
+
+	// one day this will be set properly in the response. The docs say 30 mins, so setting it to 29
+	// https://docs.mongodb.com/stitch/graphql/authenticate-graphql-requests/#refresh-a-client-api-access-token
+	if c.Token.Expiry.IsZero() {
+		c.Token.Expiry = time.Now().Add(time.Minute * 29)
+	}
+
+	// also storing other "raw" but undocumented fields in the response.
+	raw := map[string]interface{}{}
+	err = json.Unmarshal(b, &raw)
+	if err != nil {
+		return err
+	}
+	delete(raw, "access_token")
+	delete(raw, "refresh_token")
+	delete(raw, "token_type")
+	delete(raw, "expiry")
+	c.Token = c.Token.WithExtra(raw)
 	return nil
 }
