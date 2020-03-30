@@ -8,7 +8,6 @@ type ClientOptions struct {
 	AppID         *string     `yaml:"appid" json:"app_id,omitempty"`
 	AuthMechanism *string     `yaml:"provider" json:"provider,omitempty"`
 	Credential    *Credential `yaml:"credential,omitempty" json:"credential,omitempty"`
-	// err           error
 }
 
 // Credential are provider-agnostic, fill only needed or omit if using anonymous authentication
