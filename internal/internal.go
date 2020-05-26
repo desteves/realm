@@ -1,5 +1,5 @@
-// Package gqlquery converts query or mutation to a string
-package gqlquery
+// Package internal converts query or mutation to a string
+package internal
 
 import (
 	"bytes"
@@ -20,10 +20,11 @@ type Name []string
 // ConstructQuery takes the query interface along with any variables to produce a valid query in string format.
 func ConstructQuery(v interface{}, variables map[string]interface{}) string {
 	query := query(v)
-	if len(variables) > 0 {
-		return "query(" + queryArguments(variables) + ")" + query
+	if variables == nil || len(variables) == 0 {
+		return query
 	}
-	return query
+	return "query(" + queryArguments(variables) + ")" + query
+
 }
 
 // func ConstructMutation(v interface{}, variables map[string]interface{}) string {

@@ -9,11 +9,11 @@ import (
 
 var _ = Describe("Options", func() {
 	Context("Validate", func() {
-		var appid string
-		var authm string
-		var creds Credential
-		var cred1 string
-		var cred2 string
+		// var appid string
+		// var authm string
+		// var creds Credential
+		// var cred1 string
+		// var cred2 string
 		BeforeEach(func() {
 
 		})

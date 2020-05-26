@@ -17,7 +17,6 @@ import  "github.com/desteves/realm/pkg/graphql"
 
 ## TODO (work in progress)
 
-- Implement `Disconnect` for auth packages.
 - BUG: Don't show errors array when no error.
 - Add Atlas API && Stitch-CLI commands for the Atlas+Realm Set up
 
