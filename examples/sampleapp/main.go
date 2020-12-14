@@ -195,7 +195,7 @@ func runSampleMutations(client *g.Client) {
 		"data": jsondict{
 			"tomatoes": jsondict{
 				"consensus": "",
-				"website":   "stitch.mongodb.com",
+				"website":   "mongodb.com",
 			},
 			"year":  2020,
 			"type":  "horror",

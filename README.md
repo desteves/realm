@@ -1,10 +1,8 @@
 # mongodb realm go package
 
-Contains a [mongoDB Realm](https://stitch.mongodb.com/) [Authentication package](pkg/auth) and a [GraphQL Client package](pkg/graphql) which authenticates and runs queries and mutations against [Realm's GraphQL Server](https://docs.mongodb.com/stitch/graphql/).
+Contains a [mongoDB Realm](https://docs.mongodb.com/realm/) [Authentication package](pkg/auth) and a [GraphQL Client package](pkg/graphql) which authenticates and runs queries and mutations against [Realm's GraphQL Server](https://docs.mongodb.com/realm/graphql).
 
 See [examples/](examples/)
-
-Note: Realm is formerly known as Stitch. 
 
 ## Usage 
 
@@ -15,38 +13,29 @@ go get https://github.com/desteves/realm
 import  "github.com/desteves/realm/pkg/graphql"
 ```
 
-## TODO (work in progress)
-
-- BUG: Don't show errors array when no error.
-- Add Atlas API && Stitch-CLI commands for the Atlas+Realm Set up
-
 ## Atlas Setup 
 
 - Create new project under an organization. Register [here](https://www.mongodb.com/cloud/atlas/register)
 - Create new free cluster, call it `graphqlDatabase`.
 - Load 'Sample Data Set'. Steps [here](https://docs.atlas.mongodb.com/sample-data/)
 
-## Realm Set up
+## Realm Setup
 
 ### Via the UI
 
-- Create new stitch app, call it `graphqlServer`.  Steps [here](https://docs.mongodb.com/stitch/procedures/create-stitch-app/)
+- Create new realm app, call it `graphqlServer`.  Steps [here](https://docs.mongodb.com/realm/get-started/create-realm-app)
   - Write down app id `graphqlserver-?????`
-- Enable `anonymous` authentication. Steps [here](https://docs.mongodb.com/stitch/authentication/anonymous/#configuration)
-- Enable GraphQL and configure. Steps [here](https://docs.mongodb.com/stitch/graphql/expose-data/)
-  - Generate 'stitch schemas'
+- Enable `anonymous` authentication. Steps [here](https://docs.mongodb.com/realm/authentication/anonymous)
+- Enable GraphQL and configure. Steps [here](https://docs.mongodb.com/realm/graphql/expose-data)
+  - Generate schemas
   - Select any of the `sample-*` databases/collections and click 'Generate Schema'. 
     - Enable read/write access
-
-### Via the CLI
-
-- TODO
-
-### (Optional)  Set up webhook
+    
+#### __(Optional)  Set up webhook__
 
 This is an additional check to verify our client has network connectivty.
 
-Follow the steps [listed here](https://docs.mongodb.com/stitch/reference/service-webhooks/#creating-a-webhook)
+Follow the steps [listed here](https://docs.mongodb.com/realm/services/configure/service-webhooks)
 
 - Name the service as `ping`
 - Name the webhook as `test` 
@@ -64,7 +53,7 @@ Follow the steps [listed here](https://docs.mongodb.com/stitch/reference/service
 
 See [examples/anonymousauth/main.go](examples/anonymousauth/main.go) for usage.
 
-### (Optional)  Set up dummy GraphQL record
+#### __(Optional)  Set up dummy GraphQL record__
 
 This is to verify our client can reach the graphql server and obtain a valid response.
 
@@ -78,14 +67,29 @@ db.health.insertOne({
  "appid": appid,
  "description": "Checks GraphQL Server is reachable and operational",
  "status": "pass",
- "endpoint": "https://stitch.mongodb.com/api/client/v2.0/app/"+appid+"/graphql"
+ "endpoint": "https://realm.mongodb.com/api/client/v2.0/app/"+appid+"/graphql"
 })
 
 ```
 
 See [examples/graphqlhealthcheck/main.go](examples/graphqlhealthcheck/main.go) for usage.
 
+### Via the CLI
+
+```
+npm install -g mongodb-realm-cli
+realm-cli login --api-key="AAAAAAA" --private-api-key="AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA"
+
+// todo
+```
+
+## TODO (work in progress)
+
+- BUG: Don't show errors array when no error.
+- Add Atlas API && Realm-CLI commands for the Atlas+Realm Set up
+- Testing
+
 ## References
 
 - [MongoDB Go Driver](https://github.com/mongodb/mongo-go-driver)
-- [MongoDB GraphQL Docs](https://docs-mongodbcom-staging.corp.mongodb.com/stitch/nick/graphql/graphql.html)
+- [MongoDB GraphQL Docs](https://docs.mongodb.com/realm/graphql)
