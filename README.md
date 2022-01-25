@@ -1,5 +1,7 @@
 # mongodb realm go package
 
+[![Git](https://app.soluble.cloud/api/v1/public/badges/b028e201-40b2-415c-9014-6abe3c522bab.svg?orgId=679096383598)](https://app.soluble.cloud/repos/details/github.com/desteves/realm?orgId=679096383598)  
+
 Contains a [mongoDB Realm](https://docs.mongodb.com/realm/) [Authentication package](pkg/auth) and a [GraphQL Client package](pkg/graphql) which authenticates and runs queries and mutations against [Realm's GraphQL Server](https://docs.mongodb.com/realm/graphql).
 
 See [examples/](examples/)
